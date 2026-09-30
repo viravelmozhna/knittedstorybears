@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PatternCard from '../components/PatternCard.astro';
+import Difficulty from '../components/Difficulty.astro';
+import Icon from '../components/Icon.astro';
+import GroupCard from '../components/GroupCard.astro';
+import { getPatterns } from '../lib/patterns';
+import { GROUPS, patternsIn } from '../lib/groups';
+import { SITE } from '../site.config';
+
+const patterns = await getPatterns();
+const [featured, ...rest] = patterns;
+const latest = rest.slice(0, SITE.postsPerPageOnHome);
+const groups = GROUPS.map((group) => ({
+  group,
+  count: patternsIn(group, patterns).length,
+  cover: patterns.find((p) => p.id === group.cover)?.data.cover,
+}));
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Free crochet patterns</p>
+        <h1>{SITE.tagline}</h1>
+        <p class="lede">{SITE.description}</p>
+        <div class="actions">
+          <a class="btn" href="/patterns/">Browse patterns <Icon name="arrowRight" size={18} /></a>
+          <a class="btn btn--ghost" href="/stitch-guide/">New to crochet?</a>
+        </div>
+      </div>
+
+      {
+        featured && (
+          <a class="featured" href={`/patterns/${featured.id}/`}>
+            <div class="featured-img">
+              {featured.data.cover && (
+                <img src={featured.data.cover} alt={featured.data.coverAlt ?? ''} width="720" height="720" />
+              )}
+              <span class="ribbon">Featured pattern</span>
+            </div>
+            <div class="featured-body">
+              {featured.data.difficulty && <Difficulty value={featured.data.difficulty} />}
+              <h2>{featured.data.title}</h2>
+              <span class="go">
+                Get the free pattern <Icon name="arrowRight" size={16} />
+              </span>
+            </div>
+          </a>
+        )
+      }
+    </div>
+  </section>
+
+  {
+    latest.length > 0 && (
+      <section class="section">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Keep crocheting</p>
+              <h2>More patterns</h2>
+            </div>
+            <a class="btn btn--ghost btn--small" href="/patterns/">
+              See all {patterns.length}
+            </a>
+          </div>
+          <div class="card-grid">
+            {latest.map((p) => (
+              <PatternCard pattern={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section browse">
+    <div class="wrap">
+      <p class="eyebrow">Find your next make</p>
+      <h2>Browse by group</h2>
+      <div class="groups">
+        {groups.map(({ group, count, cover }) => <GroupCard group={group} count={count} cover={cover} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: clamp(36px, 6vw, 80px) clamp(24px, 4vw, 48px);
+    background:
+      radial-gradient(60% 80% at 100% 0%, var(--accent-soft), transparent 70%),
+      radial-gradient(50% 70% at 0% 100%, var(--sage-soft), transparent 70%);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(28px, 5vw, 64px);
+    align-items: center;
+  }
+  .lede {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 48ch;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .featured {
+    display: block;
+    background: var(--surface);
+    border-radius: calc(var(--radius) + 6px);
+    padding: 12px;
+    box-shadow: var(--shadow);
+    color: var(--ink);
+    text-decoration: none;
+    rotate: 1.5deg;
+    transition: rotate 0.25s ease;
+  }
+  .featured:hover {
+    rotate: 0deg;
+  }
+  .featured-img {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface-2);
+  }
+  .featured-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ribbon {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--honey);
+    color: #3a2e2a;
+    font-weight: 800;
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .featured-body {
+    padding: 16px 10px 8px;
+  }
+  .featured-body h2 {
+    font-size: 1.5rem;
+    margin: 6px 0 8px;
+  }
+  .go {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    font-weight: 800;
+  }
+  .browse {
+    background: var(--surface-2);
+  }
+  .groups {
+    display: grid;
+    gap: clamp(14px, 2vw, 22px);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+    margin-top: 24px;
+  }
+
+  @media (max-width: 800px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+    .featured {
+      rotate: 0deg;
+    }
+  }
+</style>

@@ -1,0 +1,62 @@
+[
+  {
+    "id": "2592075089659966322",
+    "author": "Anonymous",
+    "isAuthor": false,
+    "date": "2019-01-21T00:42:53.954+02:00",
+    "html": "Great pattern wow"
+  },
+  {
+    "id": "5518035697077041014",
+    "parent": "2592075089659966322",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2019-02-07T00:04:43.303+02:00",
+    "html": "Thank you!"
+  },
+  {
+    "id": "6072178947884655324",
+    "author": "DottieL",
+    "isAuthor": false,
+    "date": "2019-02-10T20:31:48.191+02:00",
+    "html": "I absolutely love this pattern. The pig is adorable. What is your policy on selling them once their made? I would of course link back to your pattern - and no worries at all if you would prefer not to do that. <br>"
+  },
+  {
+    "id": "7093522702795850957",
+    "parent": "6072178947884655324",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2019-02-10T21:24:26.983+02:00",
+    "html": "Hi! Thank you for your words about the piglet!! <br>Of course, you can sell the finished toys, it is absolutely okay!"
+  },
+  {
+    "id": "9085086425698612758",
+    "author": "sharron taylor",
+    "isAuthor": false,
+    "date": "2019-06-26T03:20:34.915+03:00",
+    "html": "is the skirt made with a piece of elastic?"
+  },
+  {
+    "id": "603338119903493741",
+    "parent": "9085086425698612758",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2019-07-08T10:58:18.585+03:00",
+    "html": "Yes, it is, with elastic band"
+  },
+  {
+    "id": "3130335487262192579",
+    "author": "Anonymous",
+    "isAuthor": false,
+    "date": "2019-07-11T09:24:58.151+03:00",
+    "html": "All of your patterns are so cute! What are the measurements for the fabric strips for the skirt?"
+  },
+  {
+    "id": "3135806490941681025",
+    "parent": "3130335487262192579",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2019-11-04T09:40:48.421+02:00",
+    "html": "Thank you! <br>I made &quot;0.4 inch/4 inch&quot; stripes for my size of the pig (5 inches)"
+  }
+]

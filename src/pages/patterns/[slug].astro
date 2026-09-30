@@ -1,0 +1,925 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PatternCard from '../../components/PatternCard.astro';
+import Difficulty from '../../components/Difficulty.astro';
+import Icon from '../../components/Icon.astro';
+import Comments from '../../components/Comments.astro';
+import { getPatterns, formatDate, type Pattern } from '../../lib/patterns';
+import { groupsOf } from '../../lib/groups';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const patterns = await getPatterns();
+  return patterns.map((pattern, i) => ({
+    params: { slug: pattern.id },
+    props: { pattern, newer: patterns[i - 1], older: patterns[i + 1], all: patterns },
+  }));
+}
+
+interface Props {
+  pattern: Pattern;
+  newer?: Pattern;
+  older?: Pattern;
+  all: Pattern[];
+}
+
+const { pattern, newer, older, all } = Astro.props;
+const { Content } = await render(pattern);
+const d = pattern.data;
+
+// Yarn and hook go in the checklist with the other materials, so nothing is listed twice.
+const needs = [
+  ...(d.yarn ? [{ label: 'Yarn', text: d.yarn, note: d.yarnNote }] : []),
+  ...(d.hook ? [{ label: 'Hook', text: d.hook, note: undefined }] : []),
+  ...d.materials.map((text) => ({ label: undefined, text, note: undefined })),
+];
+
+const groups = groupsOf(pattern);
+const related = all
+  .filter((p) => p.id !== pattern.id)
+  .map((p) => ({ p, score: groupsOf(p).filter((g) => groups.includes(g)).length }))
+  .filter((x) => x.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.p);
+
+const searchTitle = d.searchTitle ?? `${d.title} – Free Crochet Pattern`;
+
+const pageUrl = new URL(`/patterns/${pattern.id}/`, Astro.site).href;
+const pinUrl = `https://www.pinterest.com/pin/create/button/?${new URLSearchParams({
+  url: pageUrl,
+  description: searchTitle,
+  ...((d.pinImage ?? d.cover) ? { media: new URL(d.pinImage ?? d.cover!, Astro.site).href } : {}),
+})}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: searchTitle,
+  description: d.description,
+  datePublished: d.date.toISOString(),
+  dateModified: (d.updated ?? d.date).toISOString(),
+  author: { '@type': 'Person', name: SITE.author },
+  image: d.cover ? new URL(d.cover, Astro.site).href : undefined,
+  url: pageUrl,
+};
+---
+
+<BaseLayout title={d.title} searchTitle={searchTitle} description={d.description} image={d.cover} type="article">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <article class="wrap pattern" data-slug={pattern.id}>
+    <header class="intro">
+      <p class="crumbs"><a href="/patterns/">Patterns</a> <span aria-hidden="true">/</span></p>
+      <h1>{d.title}</h1>
+      {d.description && <p class="lede">{d.description}</p>}
+      <p class="meta">
+        <time datetime={d.date.toISOString()}>{formatDate(d.date)}</time>
+        {d.updated && <span> · updated {formatDate(d.updated)}</span>}
+        {d.draft && <strong class="draft"> · DRAFT</strong>}
+      </p>
+      {
+        groups.length > 0 && (
+          <p class="tags">
+            {groups.map((g) => (
+              <a class="chip" href={`/collections/${g.slug}/`}>
+                {g.name}
+              </a>
+            ))}
+          </p>
+        )
+      }
+    </header>
+
+    <div class="layout">
+      <aside class="side">
+        {
+          d.cover && (
+            <img class="cover" src={d.cover} alt={d.coverAlt ?? d.title} width="720" height="720" />
+          )
+        }
+
+        <div class="actions no-print">
+          <button class="btn btn--ghost" type="button" data-print>
+            <Icon name="print" size={18} /> Print
+          </button>
+          <a class="btn btn--ghost" href={pinUrl} target="_blank" rel="noopener">
+            <Icon name="pinterest" size={18} /> Pin it
+          </a>
+        </div>
+
+        <section class="details" aria-label="Pattern details">
+          <h2>At a glance</h2>
+          <dl>
+            <div>
+              <dt>
+                <Icon name="level" size={18} /> Skill level
+              </dt>
+              <dd>
+                <Difficulty value={d.difficulty} />
+              </dd>
+            </div>
+            {
+              d.finishedSize && (
+                <div>
+                  <dt>
+                    <Icon name="ruler" size={18} /> Finished size
+                  </dt>
+                  <dd>
+                    {d.finishedSize}
+                    <small>Varies with your yarn and hook.</small>
+                  </dd>
+                </div>
+              )
+            }
+            {
+              d.time && (
+                <div>
+                  <dt>
+                    <Icon name="clock" size={18} /> Time
+                  </dt>
+                  <dd>{d.time}</dd>
+                </div>
+              )
+            }
+          </dl>
+          {
+            needs.length > 0 && (
+              <>
+                <h3>You'll need</h3>
+                <ul class="materials">
+                  {needs.map((item) => (
+                    <li>
+                      <label>
+                        <input type="checkbox" />
+                        <span>
+                          {item.label && <strong>{item.label}: </strong>}
+                          {item.text}
+                          {item.note && <small>{item.note}</small>}
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )
+          }
+        </section>
+
+        <section class="keep no-print" data-keep hidden aria-labelledby="keep-title">
+          <h2 id="keep-title"><Icon name="check" size={18} /> Keep your place</h2>
+          <p>
+            Tap a round when you've finished it and it gets crossed out. Tap it again to undo. Your ticks are saved on
+            this device, so you can close the page and come back later.
+          </p>
+          <div class="keep-progress" data-keep-progress hidden>
+            <div class="meter" aria-hidden="true"><span data-meter></span></div>
+            <p class="count" data-count></p>
+            <div class="keep-actions">
+              <button type="button" class="continue" data-continue>Continue</button>
+              <button type="button" class="clear" data-clear>Clear ticks</button>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <div class="content">
+        <div class="keep-mini no-print" data-keep-mini hidden>
+          <span class="mini-count"><Icon name="check" size={16} /> <span data-mini-count></span></span>
+          <button type="button" class="continue" data-continue>Continue</button>
+          <span class="mini-meter" aria-hidden="true"><span data-mini-meter></span></span>
+        </div>
+        <div class="prose" id="pattern-text">
+          <Content />
+        </div>
+        <Comments slug={pattern.id} url={pageUrl} />
+      </div>
+    </div>
+
+    <nav class="pager no-print" aria-label="More patterns">
+      {
+        older ? (
+          <a href={`/patterns/${older.id}/`} class="prev">
+            <small>← Older</small>
+            {older.data.title}
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        newer && (
+          <a href={`/patterns/${newer.id}/`} class="next">
+            <small>Newer →</small>
+            {newer.data.title}
+          </a>
+        )
+      }
+    </nav>
+  </article>
+
+  <dialog class="zoom" aria-label="Photo">
+    <form method="dialog"><button aria-label="Close photo">×</button></form>
+    <img alt="" />
+  </dialog>
+
+  {
+    related.length > 0 && (
+      <section class="section no-print">
+        <div class="wrap">
+          <h2>You might also like</h2>
+          <div class="card-grid">
+            {related.map((p) => (
+              <PatternCard pattern={p} />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<script>
+  document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
+
+  // Keep the whole sidebar reachable: if it's taller than the window, let it
+  // stick by its bottom edge instead of its top.
+  const side = document.querySelector<HTMLElement>('.side');
+  if (side) {
+    const place = () => {
+      const top = Math.min(88, innerHeight - side.offsetHeight - 24);
+      side.style.setProperty('--side-top', `${top}px`);
+    };
+    new ResizeObserver(place).observe(side);
+    addEventListener('resize', place);
+  }
+
+  const article = document.querySelector<HTMLElement>('.pattern')!;
+  const text = document.getElementById('pattern-text')!;
+  const keep = document.querySelector<HTMLElement>('[data-keep]')!;
+  const progress = keep.querySelector<HTMLElement>('[data-keep-progress]')!;
+  const meter = keep.querySelector<HTMLElement>('[data-meter]')!;
+  const count = keep.querySelector<HTMLElement>('[data-count]')!;
+  const clearBtn = keep.querySelector<HTMLButtonElement>('[data-clear]')!;
+  const mini = document.querySelector<HTMLElement>('[data-keep-mini]')!;
+  const miniCount = mini.querySelector<HTMLElement>('[data-mini-count]')!;
+  const miniMeter = mini.querySelector<HTMLElement>('[data-mini-meter]')!;
+  const phone = matchMedia('(max-width: 960px)');
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const key = `ksb:progress:${article.dataset.slug}`;
+
+  // Numbered steps, plus any line that starts like "Rnd 3:", "Row 12", "R5".
+  const rowStart = /^\s*(rnd|rnds|round|rounds|row|rows|r)\s*\d+/i;
+  const rows = [...text.querySelectorAll<HTMLElement>('li, p')].filter((el) => {
+    if (el.tagName === 'P' && el.closest('li')) return false;
+    if (el.tagName === 'LI' && el.parentElement?.tagName === 'OL') return true;
+    return rowStart.test(el.textContent ?? '');
+  });
+
+  const rowsWord = rows.filter((r) => /^\s*rows?\b/i.test(r.textContent ?? '')).length;
+  const unit = rowsWord > rows.length / 2 ? 'rows' : 'rounds';
+
+  let done = new Set<number>();
+  try {
+    done = new Set(JSON.parse(localStorage.getItem(key) ?? '[]'));
+  } catch {}
+
+  function save() {
+    try {
+      if (done.size) localStorage.setItem(key, JSON.stringify([...done]));
+      else localStorage.removeItem(key);
+    } catch {}
+    keep.hidden = rows.length === 0;
+    progress.hidden = done.size === 0;
+    count.textContent = `${done.size} of ${rows.length} ${unit} done`;
+    meter.style.width = `${(done.size / Math.max(rows.length, 1)) * 100}%`;
+    miniCount.textContent = `${done.size} of ${rows.length} ${unit}`;
+    miniMeter.style.width = meter.style.width;
+    placeMini();
+  }
+
+  rows.forEach((row, i) => {
+    row.classList.add('row');
+    row.tabIndex = 0;
+    row.setAttribute('role', 'checkbox');
+    const set = (on: boolean) => {
+      row.classList.toggle('done', on);
+      row.setAttribute('aria-checked', String(on));
+    };
+    set(done.has(i));
+    const toggle = (e: Event) => {
+      if ((e.target as HTMLElement).closest('a, button, input')) return;
+      if (done.has(i)) done.delete(i);
+      else done.add(i);
+      set(done.has(i));
+      save();
+    };
+    row.addEventListener('click', toggle);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        toggle(e);
+      }
+    });
+  });
+  save();
+
+  // Continue: jump to the first unticked round after the last ticked one.
+  // Phones: once the box has scrolled away, a slim strip under the header keeps
+  // the count and Continue in view while you're in the pattern.
+  function placeMini() {
+    const headerH = header?.offsetHeight ?? 0;
+    const pastBox = keep.getBoundingClientRect().bottom < headerH;
+    const inPattern = text.getBoundingClientRect().bottom > headerH + 60;
+    mini.style.top = `${headerH}px`;
+    mini.hidden = !(phone.matches && done.size > 0 && pastBox && inPattern);
+  }
+  let queued = false;
+  addEventListener(
+    'scroll',
+    () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        placeMini();
+      });
+    },
+    { passive: true },
+  );
+  phone.addEventListener('change', placeMini);
+
+  document.querySelectorAll('[data-continue]').forEach((btn) => btn.addEventListener('click', () => {
+    const last = Math.max(...done);
+    const next = rows.find((_, i) => i > last && !done.has(i)) ?? rows.find((_, i) => !done.has(i));
+    if (!next) return;
+    next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    next.classList.remove('flash');
+    void next.offsetWidth;
+    next.classList.add('flash');
+    next.focus({ preventScroll: true });
+  }));
+
+  // Clear needs a second tap, so progress isn't lost by accident.
+  let armed: number | undefined;
+  clearBtn.addEventListener('click', () => {
+    if (armed === undefined) {
+      clearBtn.textContent = 'Sure?';
+      clearBtn.classList.add('armed');
+      armed = window.setTimeout(() => {
+        armed = undefined;
+        clearBtn.textContent = 'Clear ticks';
+        clearBtn.classList.remove('armed');
+      }, 3000);
+      return;
+    }
+    clearTimeout(armed);
+    armed = undefined;
+    clearBtn.textContent = 'Clear ticks';
+    clearBtn.classList.remove('armed');
+    done.clear();
+    rows.forEach((r) => {
+      r.classList.remove('done');
+      r.setAttribute('aria-checked', 'false');
+    });
+    save();
+  });
+
+  // Videos load from YouTube only when the reader presses play.
+  text.querySelectorAll<HTMLElement>('[data-youtube]').forEach((box) => {
+    box.querySelector('button')?.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = `https://www.youtube-nocookie.com/embed/${box.dataset.youtube}?autoplay=1`;
+      frame.title = 'YouTube video';
+      frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+      frame.allowFullscreen = true;
+      box.replaceChildren(frame);
+      box.classList.add('playing');
+    });
+  });
+
+  // Tap a photo to see it bigger.
+  const zoom = document.querySelector<HTMLDialogElement>('dialog.zoom')!;
+  const zoomImg = zoom.querySelector('img')!;
+  text.addEventListener('click', (e) => {
+    const img = (e.target as HTMLElement).closest('img');
+    if (!img || img.closest('a')) return;
+    zoomImg.src = img.currentSrc || img.src;
+    zoomImg.alt = img.alt;
+    zoom.showModal();
+  });
+  zoom.addEventListener('click', (e) => {
+    if (e.target === zoom || e.target === zoomImg) zoom.close();
+  });
+
+</script>
+
+<style>
+  .pattern {
+    padding-top: clamp(28px, 5vw, 56px);
+  }
+  .intro {
+    max-width: 780px;
+    margin-bottom: 32px;
+  }
+  .crumbs {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  .crumbs a {
+    text-decoration: none;
+  }
+  .crumbs span {
+    color: var(--muted);
+  }
+  .lede {
+    font-size: 1.2rem;
+    color: var(--muted);
+  }
+  .meta {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .draft {
+    color: var(--accent);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: clamp(32px, 5vw, 64px);
+    align-items: start;
+  }
+  .side {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: var(--side-top, 88px);
+    display: grid;
+    gap: 16px;
+  }
+  .content {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .cover {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .actions .btn {
+    padding: 0.6em 1.05em;
+    font-size: 0.9rem;
+  }
+  .details {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--line);
+  }
+  .details h2 {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+  .details h3 {
+    font-size: 1.05rem;
+    margin: 18px 0 8px;
+  }
+  dl {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  dl > div {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 8px;
+    font-size: 0.95rem;
+  }
+  dt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  dd {
+    margin: 0;
+    font-weight: 700;
+  }
+  dd small,
+  .materials small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+  .materials {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 0.95rem;
+  }
+  .materials label {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    cursor: pointer;
+  }
+  .materials input {
+    accent-color: var(--sage);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    translate: 0 2px;
+  }
+  .materials input:checked + span,
+  .materials input:checked + span small {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+
+  /* "Keep your place": explanation and progress, in the side column. */
+  .keep {
+    background: var(--sage-soft);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    font-size: 0.92rem;
+  }
+  .keep[hidden],
+  .keep-progress[hidden] {
+    display: none;
+  }
+  .keep h2 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .keep h2 :global(svg) {
+    color: var(--sage);
+  }
+  .keep p {
+    margin: 0;
+  }
+  .keep-progress {
+    margin-top: 14px;
+  }
+  .meter {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+  .meter span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--sage);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+  }
+  .keep .count {
+    font-weight: 800;
+    margin: 6px 0 10px;
+  }
+  .keep-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .keep-actions button {
+    font: inherit;
+    font-weight: 800;
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 16px;
+    cursor: pointer;
+  }
+  .continue {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+  .clear {
+    background: transparent;
+    color: var(--accent);
+  }
+  .clear:hover {
+    text-decoration: underline;
+  }
+  .clear.armed {
+    background: var(--accent-soft);
+    text-decoration: none;
+  }
+
+  .keep-mini {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 15;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px var(--gutter);
+    background: color-mix(in srgb, var(--sage-soft) 94%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.9rem;
+    box-shadow: 0 6px 12px -10px rgb(0 0 0 / 0.4);
+  }
+  .keep-mini[hidden] {
+    display: none;
+  }
+  .mini-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+  }
+  .mini-count :global(svg) {
+    color: var(--sage);
+  }
+  .keep-mini .continue {
+    font: inherit;
+    font-weight: 800;
+    border: 0;
+    border-radius: 999px;
+    padding: 5px 14px;
+    cursor: pointer;
+  }
+  .mini-meter {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--surface);
+  }
+  .mini-meter span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: var(--sage);
+    transition: width 0.3s ease;
+  }
+  /* Rows scrolled to by Continue clear the header and the strip. */
+  .prose :global(.row) {
+    scroll-margin-top: 130px;
+  }
+  .prose :global(.row.flash) {
+    animation: flash 1.4s ease;
+  }
+  @keyframes flash {
+    0%,
+    40% {
+      background: var(--honey-soft);
+    }
+  }
+
+  /* Rows you can tick off. */
+  .prose :global(.row) {
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s ease, color 0.15s ease;
+    position: relative;
+  }
+  .prose :global(p.row) {
+    padding: 4px 8px;
+    margin-inline: -8px;
+  }
+  .prose :global(.row:hover) {
+    background: var(--surface-2);
+  }
+  .prose :global(.row.done) {
+    color: var(--muted);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in srgb, var(--sage) 70%, transparent);
+    text-decoration-thickness: 2px;
+  }
+  .prose :global(li.row.done::marker) {
+    content: '✓  ';
+    color: var(--sage);
+  }
+  .prose :global(p.row.done)::before {
+    content: '✓';
+    position: absolute;
+    left: -18px;
+    color: var(--sage);
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  /* Step-by-step photos sit side by side, as on the old blog. */
+  .prose :global(.photos) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr));
+    gap: 10px;
+    margin: 1.2em 0 1.6em;
+    align-items: start;
+  }
+  .prose :global(.photos img) {
+    margin: 0;
+    width: 100%;
+  }
+  .prose :global(img) {
+    cursor: zoom-in;
+  }
+
+  .prose :global(.video) {
+    aspect-ratio: 16 / 9;
+    max-width: 640px;
+    margin: 1.5em 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--muted);
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+  }
+  .prose :global(.video p) {
+    margin: 0 0 0.6em;
+    max-width: 44ch;
+  }
+  .prose :global(.video button) {
+    font: inherit;
+    font-weight: 800;
+    padding: 0.55em 1.2em;
+    margin-right: 10px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  .prose :global(.video.playing) {
+    padding: 0;
+  }
+  .prose :global(.video iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: var(--radius-sm);
+  }
+
+  .zoom {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(96vw, 1200px);
+    max-height: 94vh;
+  }
+  .zoom::backdrop {
+    background: rgb(20 15 13 / 0.85);
+  }
+  .zoom img {
+    max-width: 100%;
+    max-height: 94vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: zoom-out;
+  }
+  .zoom form {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+  }
+  .zoom button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--surface);
+    color: var(--ink);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .pager a {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .pager a:hover {
+    color: var(--accent);
+  }
+  .pager small {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .pager .next {
+    text-align: right;
+    grid-column: 2;
+  }
+
+  @media (max-width: 960px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .side,
+    .content {
+      grid-column: 1;
+      grid-row: auto;
+      position: static;
+    }
+    .side {
+      max-width: 560px;
+    }
+  }
+  @media (max-width: 560px) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .pager .next {
+      grid-column: 1;
+    }
+  }
+
+  @media print {
+    :global(.site-header),
+    :global(.site-footer),
+    .no-print {
+      display: none !important;
+    }
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .side {
+      position: static;
+      grid-column: 1;
+      grid-row: auto;
+      grid-template-columns: 220px 1fr;
+      align-items: start;
+    }
+    .content {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .cover,
+    .details {
+      box-shadow: none;
+    }
+    .prose :global(.row.done) {
+      color: inherit;
+      text-decoration: none;
+    }
+    .prose :global(img) {
+      max-width: 60%;
+      break-inside: avoid;
+    }
+    .prose :global(.photos) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .prose :global(.photos img) {
+      max-width: 100%;
+    }
+  }
+</style>

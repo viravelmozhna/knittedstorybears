@@ -1,0 +1,61 @@
+---
+import type { Group } from '../lib/groups';
+
+interface Props {
+  group: Group;
+  cover?: string;
+  count: number;
+}
+const { group, cover, count } = Astro.props;
+---
+
+<a class="group" href={`/collections/${group.slug}/`}>
+  {cover ? <img src={cover} alt="" loading="lazy" decoding="async" width="64" height="64" /> : <span class="thumb" />}
+  <span class="label">
+    <strong>{group.name}</strong>
+    <small>{count} {count === 1 ? 'pattern' : 'patterns'}</small>
+  </span>
+</a>
+
+<style>
+  .group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px 10px 10px;
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    color: var(--ink);
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: border-color 0.15s ease;
+  }
+  .group:hover {
+    border-color: var(--accent);
+  }
+  img,
+  .thumb {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    background: var(--surface-2);
+  }
+  .label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  strong {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+  small {
+    color: var(--muted);
+    font-weight: 700;
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BearFull from '../components/BearFull.astro';
+---
+
+<BaseLayout title="Page not found">
+  <section class="section">
+    <div class="wrap" style="text-align:center; max-width: 560px">
+      <BearFull size={120} class="lost" />
+      <h1 style="margin-top: 24px">Oops, dropped a stitch</h1>
+      <p style="color: var(--muted)">
+        This page doesn't exist (anymore). If you followed an old link from the Blogger blog, the pattern is still
+        here — you'll find it in the list of all patterns.
+      </p>
+      <a class="btn" href="/patterns/" style="margin-top: 16px">See all patterns</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  :global(.lost) {
+    margin-inline: auto;
+    rotate: -8deg;
+  }
+</style>

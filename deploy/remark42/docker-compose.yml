@@ -1,0 +1,25 @@
+# Remark42 — the comment system for the blog.
+# Start with:  docker compose up -d   (from this folder, on the server)
+# Settings reference: https://remark42.com/docs/configuration/parameters/
+services:
+  remark42:
+    image: umputun/remark42:latest
+    container_name: remark42
+    restart: always
+    environment:
+      - REMARK_URL=https://comments.knittedstorybears.com
+      - SITE=knittedstorybears
+      # A long random string; generate one with:  openssl rand -hex 32
+      - SECRET=${REMARK42_SECRET:?set REMARK42_SECRET in .env}
+      # Readers can comment with just a name — no account needed.
+      - AUTH_ANON=true
+      # To moderate, sign in once with Google, copy your user ID from the widget
+      # and put it here. Create the Google keys at https://console.cloud.google.com/apis/credentials
+      # (redirect URL: https://comments.knittedstorybears.com/auth/google/callback).
+      - AUTH_GOOGLE_CID=${GOOGLE_CLIENT_ID:-}
+      - AUTH_GOOGLE_CSEC=${GOOGLE_CLIENT_SECRET:-}
+      - ADMIN_SHARED_ID=${ADMIN_ID:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./var:/srv/var

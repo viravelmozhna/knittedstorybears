@@ -1,0 +1,187 @@
+---
+// Old comments carried over from Blogger, followed by live comments (Remark42).
+import { SITE } from '../site.config';
+import { formatDate } from '../lib/patterns';
+
+interface Props {
+  slug: string;
+  url: string;
+}
+
+interface OldComment {
+  id: string;
+  parent?: string;
+  author: string;
+  isAuthor: boolean;
+  date: string;
+  html: string;
+}
+
+const { slug, url } = Astro.props;
+const files = import.meta.glob<OldComment[]>('../data/comments/*.json', { eager: true, import: 'default' });
+const old = files[`../data/comments/${slug}.json`] ?? [];
+const ids = new Set(old.map((c) => c.id));
+const topLevel = old.filter((c) => !c.parent || !ids.has(c.parent));
+const repliesTo = (id: string) => old.filter((c) => c.parent === id);
+const { host, siteId } = SITE.comments;
+---
+
+<section class="comments" id="comments" aria-labelledby="comments-title">
+  <h2 id="comments-title">Comments</h2>
+
+  {
+    host && (
+      <>
+        <p class="note">
+          Your name and comment are shown publicly under this pattern. See the <a href="/privacy/">privacy policy</a>.
+        </p>
+        <div id="remark42" data-host={host} data-site={siteId} data-url={url} />
+        <p class="unavailable" hidden>
+          Comments couldn't load right now. Please try again later.
+        </p>
+      </>
+    )
+  }
+
+  {
+    old.length > 0 && (
+      <details class="archive" open={!host}>
+        <summary>
+          {old.length} earlier {old.length === 1 ? 'comment' : 'comments'} from the old blog
+        </summary>
+        <ol class="thread">
+          {topLevel.map((c) => (
+            <li>
+              <article class:list={['comment', { author: c.isAuthor }]}>
+                <header>
+                  <strong>{c.author}</strong>
+                  {c.isAuthor && <span class="badge">Author</span>}
+                  <time datetime={c.date}>{formatDate(new Date(c.date))}</time>
+                </header>
+                <p set:html={c.html} />
+              </article>
+              {repliesTo(c.id).length > 0 && (
+                <ol class="replies">
+                  {repliesTo(c.id).map((r) => (
+                    <li>
+                      <article class:list={['comment', { author: r.isAuthor }]}>
+                        <header>
+                          <strong>{r.author}</strong>
+                          {r.isAuthor && <span class="badge">Author</span>}
+                          <time datetime={r.date}>{formatDate(new Date(r.date))}</time>
+                        </header>
+                        <p set:html={r.html} />
+                      </article>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </li>
+          ))}
+        </ol>
+      </details>
+    )
+  }
+</section>
+
+<script>
+  const box = document.getElementById('remark42');
+  if (box) {
+    const { host, site, url } = box.dataset;
+    const dark = matchMedia('(prefers-color-scheme: dark)');
+    (window as any).remark_config = {
+      host,
+      site_id: site,
+      url,
+      theme: dark.matches ? 'dark' : 'light',
+      locale: 'en',
+      no_footer: true,
+      components: ['embed'],
+    };
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = `${host}/web/embed.mjs`;
+    script.onerror = () => {
+      box.nextElementSibling?.removeAttribute('hidden');
+    };
+    document.head.appendChild(script);
+    dark.addEventListener('change', (e) => (window as any).REMARK42?.changeTheme?.(e.matches ? 'dark' : 'light'));
+  }
+</script>
+
+<style>
+  .comments {
+    max-width: 70ch;
+    margin-top: 56px;
+  }
+  .unavailable,
+  .note {
+    color: var(--muted);
+  }
+  .note {
+    font-size: 0.9rem;
+  }
+  .archive {
+    margin-top: 24px;
+  }
+  .archive summary {
+    cursor: pointer;
+    font-weight: 800;
+    color: var(--accent);
+    padding: 10px 0;
+  }
+  .thread,
+  .replies {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .thread {
+    margin-top: 12px;
+  }
+  .replies {
+    margin: 12px 0 0 clamp(16px, 4vw, 36px);
+  }
+  .comment {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+    font-size: 0.97rem;
+  }
+  .comment.author {
+    background: var(--sage-soft);
+  }
+  .comment header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    margin-bottom: 4px;
+  }
+  .comment time {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .comment p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+  .badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--sage);
+    color: var(--bg);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  @media print {
+    .comments {
+      display: none;
+    }
+  }
+</style>

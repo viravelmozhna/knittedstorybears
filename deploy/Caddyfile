@@ -1,0 +1,39 @@
+# Caddy config for Knitted Story Bears.
+# Caddy fetches and renews HTTPS certificates by itself once the domain points here.
+# Install: copy these blocks into /etc/caddy/Caddyfile, then  sudo systemctl reload caddy
+
+# Bare domain → www (the address Google already knows from Blogger).
+knittedstorybears.com {
+	redir https://www.knittedstorybears.com{uri} permanent
+}
+
+# The blog: static files built by `npm run build` and uploaded by deploy.sh.
+www.knittedstorybears.com {
+	# No "log" directive on purpose: the privacy policy says no access logs are kept.
+	root * /var/www/knittedstorybears
+	encode zstd gzip
+
+	# Old Blogger addresses → new pages (uploaded by deploy.sh).
+	import /var/www/knittedstorybears-caddy/redirects.caddy
+
+	# Built CSS/JS have content hashes in their names, so they can be cached forever.
+	@hashed path /_astro/*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	@images path /images/*
+	header @images Cache-Control "public, max-age=2592000"
+
+	file_server
+
+	handle_errors {
+		@notfound expression {err.status_code} == 404
+		handle @notfound {
+			rewrite * /404.html
+			file_server
+		}
+	}
+}
+
+# Comments (Remark42, see remark42/docker-compose.yml).
+comments.knittedstorybears.com {
+	reverse_proxy 127.0.0.1:8080
+}

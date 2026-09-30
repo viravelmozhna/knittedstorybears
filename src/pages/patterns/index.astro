@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PatternCard from '../../components/PatternCard.astro';
+import { getPatterns } from '../../lib/patterns';
+
+const patterns = await getPatterns();
+---
+
+<BaseLayout title="All free patterns" description="Browse every free crochet pattern on the blog.">
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">{patterns.length} free patterns</p>
+      <h1>All patterns</h1>
+      <div class="card-grid">
+        {patterns.map((p, i) => <PatternCard pattern={p} eager={i < 3} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .card-grid {
+    margin-top: 32px;
+  }
+</style>

@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const stitches = [
+  ['ch', 'chain', 'ch', 'chain'],
+  ['sl st', 'slip stitch', 'ss', 'slip stitch'],
+  ['sc', 'single crochet', 'dc', 'double crochet'],
+  ['hdc', 'half double crochet', 'htr', 'half treble'],
+  ['dc', 'double crochet', 'tr', 'treble'],
+  ['tr', 'treble crochet', 'dtr', 'double treble'],
+  ['sk', 'skip', 'miss', 'miss'],
+];
+
+const abbreviations = [
+  ['MR', 'magic ring — an adjustable starting loop for working in the round'],
+  ['inc', 'increase — work 2 stitches into the same stitch'],
+  ['dec', 'decrease — join 2 stitches into one (invisible decrease for amigurumi)'],
+  ['st(s)', 'stitch(es)'],
+  ['rnd / R', 'round'],
+  ['BLO / FLO', 'back loop only / front loop only'],
+  ['FO', 'fasten off'],
+  ['( ) x n', 'repeat what\'s in brackets n times'],
+  ['[24]', 'stitch count at the end of the round'],
+  ['yo', 'yarn over'],
+  ['sp', 'space'],
+  ['RS / WS', 'right side / wrong side'],
+];
+---
+
+<BaseLayout
+  title="Stitch guide & abbreviations"
+  description="Crochet abbreviations used in the patterns, plus a US ↔ UK terms conversion chart."
+>
+  <section class="section">
+    <div class="wrap">
+      <div class="prose">
+        <p class="eyebrow">Reference</p>
+        <h1>Stitch guide</h1>
+        <p class="lede">
+          All patterns on this site use <strong>US crochet terms</strong>. If you learned with UK terms, use the chart
+          below — the names are shifted by one, which trips up almost everyone at least once.
+        </p>
+
+        <h2>US ↔ UK terms</h2>
+        <table>
+          <thead>
+            <tr><th>US</th><th></th><th>UK</th><th></th></tr>
+          </thead>
+          <tbody>
+            {stitches.map(([us, usName, uk, ukName]) => (
+              <tr>
+                <td><strong>{us}</strong></td>
+                <td>{usName}</td>
+                <td><strong>{uk}</strong></td>
+                <td>{ukName}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h2>Abbreviations</h2>
+        <table>
+          <tbody>
+            {abbreviations.map(([abbr, meaning]) => (
+              <tr>
+                <td><strong>{abbr}</strong></td>
+                <td>{meaning}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h2>Reading a round</h2>
+        <p>A typical amigurumi round looks like this:</p>
+        <blockquote>
+          <p><strong>Rnd 3:</strong> (sc, inc) x 6 [18]</p>
+        </blockquote>
+        <p>
+          That means: one single crochet, then an increase — and repeat that pair six times around. You should end
+          with 18 stitches. Using a stitch marker in the first stitch of each round makes counting much easier.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lede {
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+</style>

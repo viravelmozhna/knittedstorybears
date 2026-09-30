@@ -1,0 +1,38 @@
+---
+import { DIFFICULTY } from '../lib/patterns';
+
+interface Props {
+  value: keyof typeof DIFFICULTY;
+}
+const { label, level } = DIFFICULTY[Astro.props.value];
+---
+
+<span class="difficulty" title={`Skill level: ${label}`}>
+  <span class="dots" aria-hidden="true">
+    {[1, 2, 3, 4].map((n) => <i class={n <= level ? 'on' : ''} />)}
+  </span>
+  {label}
+</span>
+
+<style>
+  .difficulty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+  .dots {
+    display: inline-flex;
+    gap: 3px;
+  }
+  i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1.5px solid var(--sage);
+  }
+  i.on {
+    background: var(--sage);
+  }
+</style>

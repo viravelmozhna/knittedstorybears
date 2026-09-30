@@ -1,0 +1,142 @@
+---
+import BearMark from './BearMark.astro';
+import Icon from './Icon.astro';
+import { SITE } from '../site.config';
+
+const links = [
+  { href: '/patterns/', label: 'Patterns' },
+  { href: '/stitch-guide/', label: 'Stitch guide' },
+  { href: '/about/', label: 'About' },
+];
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/" aria-label={`${SITE.name} home`}>
+      <BearMark size={42} />
+      <span>{SITE.name}</span>
+    </a>
+    <nav class="desktop" aria-label="Main">
+      {
+        links.map((l) => (
+          <a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+    <details class="menu">
+      <summary aria-label="Menu"><Icon name="menu" size={24} /></summary>
+      <nav aria-label="Main (mobile)">
+        {
+          links.map((l) => (
+            <a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>
+              {l.label}
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 68px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'SOFT' 100;
+  }
+  .brand :global(svg) {
+    transition: transform 0.25s ease;
+  }
+  .brand:hover :global(svg) {
+    transform: rotate(-8deg);
+  }
+  nav {
+    display: flex;
+    gap: 4px;
+  }
+  nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+  }
+  nav a:hover {
+    background: var(--surface-2);
+  }
+  nav a[aria-current='page'] {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .menu {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    .desktop {
+      display: none;
+    }
+    .menu {
+      display: block;
+    }
+    .brand span {
+      font-size: 1.1rem;
+    }
+    summary {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      list-style: none;
+      color: var(--ink);
+    }
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    .menu[open] summary {
+      background: var(--surface-2);
+    }
+    .menu nav {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      flex-direction: column;
+      padding: 8px var(--gutter) 16px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    nav a {
+      padding: 12px 14px;
+    }
+  }
+</style>

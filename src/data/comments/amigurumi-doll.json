@@ -1,0 +1,62 @@
+[
+  {
+    "id": "3127556068037348437",
+    "author": "Catherine",
+    "isAuthor": false,
+    "date": "2020-11-08T01:42:57.888+02:00",
+    "html": "These are absolutely darling dolls.  I did notice that pictures 27 and 28 are missing."
+  },
+  {
+    "id": "2742063883008466710",
+    "author": "Anonymous",
+    "isAuthor": false,
+    "date": "2023-06-02T04:03:33.906+03:00",
+    "html": "Absolutely adorable thank you for sharing"
+  },
+  {
+    "id": "3793733161513811590",
+    "author": "Anonymous",
+    "isAuthor": false,
+    "date": "2023-08-09T16:01:47.004+03:00",
+    "html": "Probably the best pattern instructions ever. So easy to follow. Pictures were a great help. Thank you."
+  },
+  {
+    "id": "2413008503219811174",
+    "author": "Anonymous",
+    "isAuthor": false,
+    "date": "2023-08-23T13:55:08.416+03:00",
+    "html": "In the 2nd round of making the dress, i think i noticed a mistake and instead of &quot;2dec in each of the 36 st [ 72]... &quot;its 2 inc in each of the 36 st&quot; ??"
+  },
+  {
+    "id": "1187346961552203325",
+    "parent": "3127556068037348437",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2025-01-05T15:07:52.045+02:00",
+    "html": "Thank you for noticing this. I&#39;ve added the missing pictures."
+  },
+  {
+    "id": "2269442536911806049",
+    "parent": "2742063883008466710",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2025-01-05T15:08:53.950+02:00",
+    "html": "Thank you!"
+  },
+  {
+    "id": "548486816626135463",
+    "parent": "3793733161513811590",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2025-01-05T15:09:37.214+02:00",
+    "html": "Thank you so much for all the kind words!"
+  },
+  {
+    "id": "1760466406183659406",
+    "parent": "2413008503219811174",
+    "author": "Vira",
+    "isAuthor": true,
+    "date": "2025-01-05T15:14:43.962+02:00",
+    "html": "Hi! &quot;dc&quot; it is not a &quot;decrease (which is &quot;dec&quot;)&quot;, it&#39;s a &quot;double crochet&quot; ☺️🤗"
+  }
+]

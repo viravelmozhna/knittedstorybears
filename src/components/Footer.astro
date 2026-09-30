@@ -1,0 +1,121 @@
+---
+import BearMark from './BearMark.astro';
+import Icon from './Icon.astro';
+import { SITE } from '../site.config';
+
+const labels = {
+  instagram: 'Instagram',
+  pinterest: 'Pinterest',
+  ravelry: 'Ravelry',
+  youtube: 'YouTube',
+} as const;
+// Whichever links are filled in under `social` in site.config.ts.
+const socials = (Object.keys(labels) as (keyof typeof labels)[])
+  .map((key) => ({ key, label: labels[key], url: (SITE.social as Record<string, string>)[key] }))
+  .filter((s) => s.url);
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <hr class="stitches" />
+    <div class="cols">
+      <div class="about">
+        <a class="brand" href="/"><BearMark size={34} /> {SITE.name}</a>
+        <p>{SITE.tagline}. All patterns on this site are free for personal use.</p>
+      </div>
+      <nav aria-label="Footer">
+        <a href="/patterns/">All patterns</a>
+        <a href="/stitch-guide/">Stitch guide</a>
+        <a href="/about/">About</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+      {
+        socials.length > 0 && (
+          <div class="socials">
+            {socials.map(({ key, label, url }) => (
+              <a href={url} aria-label={label} title={label} rel="me noopener" target="_blank">
+                <Icon name={key} size={22} />
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+    <p class="fine">
+      © {year} {SITE.owner.name} · <a href={`mailto:${SITE.owner.email}`}>{SITE.owner.email}</a> · Please share a link
+      rather than copying the patterns.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 40px;
+    padding-bottom: 32px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px 48px;
+    justify-content: space-between;
+    padding-block: 32px 16px;
+  }
+  .about {
+    max-width: 360px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    text-decoration: none;
+    margin-bottom: 8px;
+  }
+  nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  nav a:hover {
+    color: var(--accent);
+  }
+  .socials {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .socials a {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--ink);
+  }
+  .socials a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .fine {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+  .fine a {
+    color: inherit;
+  }
+</style>

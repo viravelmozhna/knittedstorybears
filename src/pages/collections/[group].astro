@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PatternCard from '../../components/PatternCard.astro';
+import { getPatterns } from '../../lib/patterns';
+import { GROUPS, patternsIn, type Group } from '../../lib/groups';
+
+export async function getStaticPaths() {
+  const patterns = await getPatterns();
+  const ids = new Set(patterns.map((p) => p.id));
+  for (const group of GROUPS) {
+    const unknown = [...group.patterns, group.cover].filter((id) => !ids.has(id));
+    if (unknown.length) throw new Error(`Group "${group.name}" lists unknown patterns: ${unknown.join(', ')}`);
+  }
+  return GROUPS.map((group) => ({
+    params: { group: group.slug },
+    props: { group, patterns: patternsIn(group, patterns) },
+  }));
+}
+
+interface Props {
+  group: Group;
+  patterns: Awaited<ReturnType<typeof getPatterns>>;
+}
+const { group, patterns } = Astro.props;
+---
+
+<BaseLayout title={`${group.name} patterns`} description={group.description}>
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow"><a href="/patterns/">All patterns</a> · {patterns.length} in this group</p>
+      <h1>{group.name}</h1>
+      <p class="lede">{group.description}</p>
+      <div class="card-grid">
+        {patterns.map((p) => <PatternCard pattern={p} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lede {
+    color: var(--muted);
+    font-size: 1.15rem;
+    max-width: 55ch;
+  }
+  .card-grid {
+    margin-top: 32px;
+  }
+</style>

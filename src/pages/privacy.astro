@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../site.config';
+
+const { name, email } = SITE.owner;
+const updated = '30 September 2026';
+---
+
+<BaseLayout title="Privacy policy" description={`How ${SITE.name} handles your data.`}>
+  <section class="section">
+    <div class="wrap prose">
+      <p class="eyebrow">Datenschutzerklärung</p>
+      <h1>Privacy policy</h1>
+      <p class="lede">
+        Short version: this is a private hobby blog. It has no ads, no analytics and no tracking, and it doesn't
+        share your data with anyone. The details are below.
+      </p>
+
+      <h2>Who is responsible</h2>
+      <p>
+        The person responsible for this website under the General Data Protection Regulation (GDPR) is:<br />
+        {name}<br />
+        Email: <a href={`mailto:${email}`}>{email}</a>
+      </p>
+
+      <h2>Visiting the website</h2>
+      <p>
+        When you open a page, your browser sends technical information to the server this site runs on: your IP
+        address, the page you asked for, the date and time, and your browser type. This is needed to deliver the
+        page to you (Art. 6(1)(f) GDPR, legitimate interest in running the website). The server does not keep access
+        logs, and this information is not combined with any other data.
+      </p>
+      <p>
+        All fonts, images and scripts come from this website's own server. No content is loaded from other
+        companies, such as Google Fonts, unless you choose to play a video (see below).
+      </p>
+
+      <h2>Cookies and tracking</h2>
+      <p>
+        This site does not use analytics, advertising or tracking cookies. The only cookies are set by the comment
+        system when you sign in to write a comment (see below).
+      </p>
+
+      <h2>Your crochet progress</h2>
+      <p>
+        When you tick off rounds in a pattern, your progress is saved in your own browser (so-called local storage)
+        so it's still there next time. It never leaves your device and is not sent to the server. You can clear it
+        with the "Clear all ticks" button on the pattern or by clearing your browser data. This storage is strictly
+        necessary for the feature you asked for (§ 25(2) no. 2 TDDDG).
+      </p>
+
+      <h2>Comments</h2>
+      <p>
+        Comments run on Remark42, a comment system hosted on this website's own server (comments.knittedstorybears.com).
+        When you write a comment, the name you enter, your comment and the time it was posted are stored and shown
+        publicly under the pattern. Remark42 keeps only a user ID, a user name and, if you sign in with an account,
+        a link to your profile picture; the ID and name are stored in scrambled (hashed) form. To keep you signed in,
+        it sets two cookies: a login token and a random security token. There is no tracking.
+      </p>
+      <p>
+        If you choose to sign in with a Google account instead of just a name, Google shares your name and profile
+        picture with the comment system. Google's privacy policy applies to that sign-in:
+        <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">policies.google.com/privacy</a>.
+      </p>
+      <p>
+        The legal basis is your consent when you post a comment (Art. 6(1)(a) GDPR). Comments stay online until you ask
+        for them to be removed. You can download or delete everything the comment system knows about you from its
+        settings, or email me.
+      </p>
+      <p>
+        Comments written on the old Blogger version of this blog were moved here and are shown under each pattern,
+        with the name the commenter used at the time. If one of them is yours and you'd like it removed, email me.
+      </p>
+
+      <h2>YouTube videos</h2>
+      <p>
+        Some patterns include a video hosted on YouTube (Google Ireland Limited, Gordon House, Barrow Street,
+        Dublin 4, Ireland). The video only loads when you press "Play video". It then loads from
+        youtube-nocookie.com, and YouTube receives your IP address and information about your browser. Google may
+        process this data in the USA. The legal basis is your consent, given by pressing play (Art. 6(1)(a) GDPR).
+        Details:
+        <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">policies.google.com/privacy</a>.
+      </p>
+
+      <h2>Links to other websites</h2>
+      <p>
+        Links to Instagram, Ravelry, Pinterest, Facebook or YouTube are plain links. Nothing is sent to those services
+        until you click one; after that, their own privacy policies apply.
+      </p>
+
+      <h2>Your rights</h2>
+      <p>
+        You have the right to access the personal data stored about you, to have it corrected or deleted, to
+        restrict its processing, to receive it in a portable format, and to object to its processing (Art. 15–21
+        GDPR). You can withdraw consent at any time, with effect for the future. Just email me at
+        <a href={`mailto:${email}`}>{email}</a>.
+      </p>
+      <p>
+        You also have the right to complain to a data protection supervisory authority, for example the one in the
+        country or German state where you live.
+      </p>
+
+      <p class="updated">Last updated: {updated}</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lede {
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+  .updated {
+    margin-top: 2.5em;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>

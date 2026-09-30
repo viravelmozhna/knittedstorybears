@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+*.xml.bak
+blogger-export/
+deploy/remark42/.env
+deploy/remark42/var/
