@@ -88,12 +88,11 @@ const { host, siteId } = SITE.comments;
   const box = document.getElementById('remark42');
   if (box) {
     const { host, site, url } = box.dataset;
-    const dark = matchMedia('(prefers-color-scheme: dark)');
     (window as any).remark_config = {
       host,
       site_id: site,
       url,
-      theme: dark.matches ? 'dark' : 'light',
+      theme: 'light',
       locale: 'en',
       no_footer: true,
       components: ['embed'],
@@ -105,7 +104,6 @@ const { host, siteId } = SITE.comments;
       box.nextElementSibling?.removeAttribute('hidden');
     };
     document.head.appendChild(script);
-    dark.addEventListener('change', (e) => (window as any).REMARK42?.changeTheme?.(e.matches ? 'dark' : 'light'));
   }
 </script>
 
