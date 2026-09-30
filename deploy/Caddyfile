@@ -9,9 +9,16 @@ knittedstorybears.com {
 
 # The blog: static files built by `npm run build` and uploaded by deploy.sh.
 www.knittedstorybears.com {
-	# No "log" directive on purpose: the privacy policy says no access logs are kept.
 	root * /var/www/knittedstorybears
 	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
 
 	# Old Blogger addresses → new pages (uploaded by deploy.sh).
 	import /var/www/knittedstorybears-caddy/redirects.caddy
@@ -22,18 +29,45 @@ www.knittedstorybears.com {
 	@images path /images/*
 	header @images Cache-Control "public, max-age=2592000"
 
-	file_server
+	file_server {
+		index index.html
+		hide .*
+	}
 
-	handle_errors {
-		@notfound expression {err.status_code} == 404
-		handle @notfound {
-			rewrite * /404.html
-			file_server
+	handle_errors 404 {
+		rewrite * /404.html
+		file_server {
+			status {err.status_code}
 		}
 	}
+
+	# No "log" directive on purpose: the site's privacy policy says no access
+	# logs are kept.
 }
 
-# Comments (Remark42, see remark42/docker-compose.yml).
+# Comments (Remark42, see remark42/docker-compose.yml), running from
+# /opt/remark42 with its data in /opt/remark42/var. Remark42 sets its own
+# frame/CORS headers for the embed, so none are added here.
 comments.knittedstorybears.com {
+	# Remark42's admin password (basic auth) is for use on this server only.
+	@basic_auth header_regexp Authorization (?i)^\s*basic
+	respond @basic_auth 403
+
 	reverse_proxy 127.0.0.1:8080
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		-Server
+	}
+
+	# Remark42's ETag for its widget files doesn't change when the files do
+	# (e.g. after relabel.sh rewords them), so browsers kept the old widget.
+	# Without it they revalidate by Last-Modified, which follows each rebuild.
+	header /web/* -ETag
+	# Browsers still holding the stale ETag send it back; drop it so Remark42
+	# can't answer 304 to it.
+	request_header /web/* -If-None-Match
+
+	# No log, same as the blog: the privacy policy promises no access logs.
 }

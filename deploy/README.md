@@ -64,18 +64,48 @@ sudo systemctl reload caddy
 
 ## 4. Start the comments (Remark42)
 
-Remark42 is a small, private comment system that runs on your server. Readers can comment with just a name, and there are no ads or tracking. Caddy already forwards `comments.knittedstorybears.com` to it.
+Remark42 is a small, private comment system that runs on your server. Readers comment with just a name: no account, no sign-in with other services, no ads or tracking. Caddy already forwards `comments.knittedstorybears.com` to it.
 
-With Docker, on the server, in a copy of `deploy/remark42/`:
+On the server, with Docker:
 
 ```bash
-cp .env.example .env        # then put a random secret in it: openssl rand -hex 32
-docker compose up -d
+mkdir -p /opt/remark42
+cp deploy/remark42/* deploy/remark42/.env.example /opt/remark42/
+cd /opt/remark42
+cp .env.example .env && chmod 600 .env   # then fill in both values: openssl rand -hex 32
+docker compose up -d --build
 ```
 
-No Docker? Remark42 is also a single program you can download from [its releases page](https://github.com/umputun/remark42/releases) and run as a service with the same settings.
+The comments are stored in `/opt/remark42/var` (keep it when updating; Remark42 also saves a daily backup in `var/backup`).
 
-To moderate comments, set up Google sign-in (instructions are in `docker-compose.yml`), sign in once through the comment box on any pattern, copy your user ID into `ADMIN_ID` in `.env`, then run `docker compose up -d` again.
+What's in `deploy/remark42/`:
+
+- `docker-compose.yml`: the settings. The container is locked down: it runs as an ordinary user with no special permissions, can't write anywhere except its data folder, and has memory and CPU limits. It keeps no access logs, as the privacy policy promises.
+- `Dockerfile`: pins the Remark42 version and prepares it so it can run locked down.
+- `relabel.sh`: rewords the comment box, since there are no accounts: "Sign In" becomes "Add your name", "Username" becomes "Your name", and so on.
+
+To update Remark42, change the version on the `FROM` line in `Dockerfile` (and the `image:` tag in `docker-compose.yml`), then run `docker compose build --pull && docker compose up -d` in `/opt/remark42`. If an update changed any of the texts `relabel.sh` rewords, the build stops with a message instead of quietly bringing "Sign In" back.
+
+### Removing spam
+
+There's no moderator login in the comment box. Spam is removed on the server with Remark42's admin API, using the `ADMIN_PASSWD` from `.env`. Caddy refuses that password from the internet, so it only works on the server itself:
+
+```bash
+cd /opt/remark42 && PW=$(grep ^ADMIN_PASSWD= .env | cut -d= -f2)
+API=http://127.0.0.1:8080/api/v1
+
+# the 50 newest comments, with their id, user id and page
+curl -s "$API/last/50?site=knittedstorybears"
+
+# delete one comment
+curl -u "admin:$PW" -X DELETE "$API/admin/comment/COMMENT_ID?site=knittedstorybears&url=PAGE_URL"
+
+# remove a spammer and all their comments
+curl -u "admin:$PW" -X DELETE "$API/admin/user/USER_ID?site=knittedstorybears"
+
+# block a user from commenting (ttl=0: for good)
+curl -u "admin:$PW" -X PUT "$API/admin/user/USER_ID?site=knittedstorybears&block=1&ttl=0"
+```
 
 The comments from Blogger are already saved in the site. They show under each pattern as "earlier comments from the old blog".
 

@@ -1,11 +1,40 @@
 # Remark42 — the comment system for the blog.
-# Start with:  docker compose up -d   (from this folder, on the server)
+# Start with:  docker compose up -d --build   (from this folder, on the server)
 # Settings reference: https://remark42.com/docs/configuration/parameters/
+#
+# Readers comment with just a name. There is no moderator login on purpose:
+# spam is removed on the server through the admin API (see deploy/README.md).
 services:
   remark42:
-    image: umputun/remark42:latest
+    # Built from ./Dockerfile: a pinned Remark42 version, prepared at build
+    # time so it can run locked down (below), with the widget reworded by
+    # relabel.sh.
+    build: .
+    image: remark42-knittedstorybears:v1.17.1
+    pull_policy: build
     container_name: remark42
     restart: always
+
+    # Lock the container down: unprivileged user (set in the Dockerfile), no
+    # Linux capabilities, no privilege escalation, read-only filesystem except
+    # the data volume and a small /tmp, and caps on memory/CPU/processes so a
+    # flood of requests can't starve the rest of the server.
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    mem_limit: 256m
+    cpus: 1.0
+    pids_limit: 100
+
+    # The privacy policy promises no access logs, and Remark42 logs every
+    # request. For debugging, comment this out temporarily and use docker logs.
+    logging:
+      driver: none
+
     environment:
       - REMARK_URL=https://comments.knittedstorybears.com
       - SITE=knittedstorybears
@@ -13,12 +42,15 @@ services:
       - SECRET=${REMARK42_SECRET:?set REMARK42_SECRET in .env}
       # Readers can comment with just a name — no account needed.
       - AUTH_ANON=true
-      # To moderate, sign in once with Google, copy your user ID from the widget
-      # and put it here. Create the Google keys at https://console.cloud.google.com/apis/credentials
-      # (redirect URL: https://comments.knittedstorybears.com/auth/google/callback).
-      - AUTH_GOOGLE_CID=${GOOGLE_CLIENT_ID:-}
-      - AUTH_GOOGLE_CSEC=${GOOGLE_CLIENT_SECRET:-}
-      - ADMIN_SHARED_ID=${ADMIN_ID:-}
+      # Only the blog may embed the comment widget.
+      - ALLOWED_HOSTS='self',https://www.knittedstorybears.com
+      # Caddy reaches the container through Docker's port proxy, so requests
+      # arrive from the Docker network gateway; trust its forwarded client IP.
+      - TRUSTED_PROXY=172.16.0.0/12
+      # Enables Remark42's admin API with basic auth as user "admin", used to
+      # remove spam. Caddy rejects basic auth from outside, so it only works
+      # via 127.0.0.1:8080 on the server itself.
+      - ADMIN_PASSWD=${ADMIN_PASSWD:?set ADMIN_PASSWD in .env}
     ports:
       - "127.0.0.1:8080:8080"
     volumes:
