@@ -101,9 +101,6 @@ const jsonLd = {
         }
 
         <div class="actions no-print">
-          <button class="btn btn--ghost" type="button" data-print>
-            <Icon name="print" size={18} /> Print
-          </button>
           <a class="btn btn--ghost" href={pinUrl} target="_blank" rel="noopener">
             <Icon name="pinterest" size={18} /> Pin it
           </a>
@@ -241,8 +238,6 @@ const jsonLd = {
 </BaseLayout>
 
 <script>
-  document.querySelector('[data-print]')?.addEventListener('click', () => window.print());
-
   // Keep the whole sidebar reachable: if it's taller than the window, let it
   // stick by its bottom edge instead of its top.
   const side = document.querySelector<HTMLElement>('.side');
