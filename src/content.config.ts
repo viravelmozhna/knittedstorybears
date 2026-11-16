@@ -16,6 +16,8 @@ const patterns = defineCollection({
     coverAlt: z.string().optional(),
     // Tall picture made for Pinterest; the "Pin it" button shares it instead of the cover.
     pinImage: z.string().optional(),
+    // Shop listing for a printable PDF of this pattern; adds a "Buy the PDF" button.
+    pdfUrl: z.string().url().optional(),
     tags: z.array(z.string()).default([]),
     // Every pattern shows its skill level on its card and page.
     difficulty: z.enum(['beginner', 'easy', 'intermediate', 'advanced']),

@@ -29,7 +29,20 @@ const year = new Date().getFullYear();
         <a href="/stitch-guide/">Stitch guide</a>
         <a href="/about/">About</a>
         <a href="/privacy/">Privacy</a>
+        <a href="/impressum/">Impressum</a>
       </nav>
+      {
+        SITE.shops.length > 0 && (
+          <nav class="shops" aria-labelledby="footer-shops">
+            <p id="footer-shops" class="label">My shops</p>
+            {SITE.shops.map((s) => (
+              <a href={s.url} rel="noopener" target="_blank">
+                {s.name}
+              </a>
+            ))}
+          </nav>
+        )
+      }
       {
         socials.length > 0 && (
           <div class="socials">
@@ -92,6 +105,14 @@ const year = new Date().getFullYear();
   }
   nav a:hover {
     color: var(--accent);
+  }
+  .label {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
   .socials {
     display: flex;

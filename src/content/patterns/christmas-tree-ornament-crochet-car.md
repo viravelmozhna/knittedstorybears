@@ -6,6 +6,7 @@ date: 2019-11-26
 cover: "/images/patterns/christmas-tree-ornament-crochet-car/01.jpg"
 coverAlt: "Crocheted red pickup truck ornament carrying a Christmas tree"
 pinImage: "/images/patterns/christmas-tree-ornament-crochet-car/18.jpg"
+pdfUrl: "https://www.etsy.com/de-en/listing/4618702873/christmas-car-crochet-pattern-amigurumi"
 tags: ["Christmas tree ornaments","Crochet car","Crochet patterns"]
 difficulty: easy
 yarn: "Sport weight in red, cream, yellow, green and brown"

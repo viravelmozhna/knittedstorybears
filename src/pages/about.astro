@@ -20,6 +20,18 @@ import { SITE } from '../site.config';
         <p>
           The patterns here are free for personal use. If you'd like to share one, please link to its page rather than copying the pattern.
         </p>
+        <h2>My shops</h2>
+        <p>
+          You can also find my patterns in my shops on{' '}
+          {
+            SITE.shops.map((s, i) => (
+              <>
+                {i > 0 && (i === SITE.shops.length - 1 ? ' and ' : ', ')}
+                <a href={s.url} rel="noopener" target="_blank">{s.name}</a>
+              </>
+            ))
+          }.
+        </p>
         <h2>Say hello</h2>
         <p>
           Made something from one of my patterns? I'd love to see it - share it on Instagram with&nbsp;

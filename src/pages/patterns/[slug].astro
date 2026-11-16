@@ -104,7 +104,21 @@ const jsonLd = {
           <a class="btn btn--ghost" href={pinUrl} target="_blank" rel="noopener">
             <Icon name="pinterest" size={18} /> Pin it
           </a>
+          {
+            d.pdfUrl && (
+              <a class="btn" href={d.pdfUrl} target="_blank" rel="noopener">
+                <Icon name="bag" size={18} /> Buy the PDF
+              </a>
+            )
+          }
         </div>
+        {
+          d.pdfUrl && (
+            <p class="pdf-note no-print">
+              The pattern is free right here. Prefer paper? The PDF is a printable copy you can keep.
+            </p>
+          )
+        }
 
         <section class="details" aria-label="Pattern details">
           <h2>At a glance</h2>
@@ -481,6 +495,11 @@ const jsonLd = {
   .actions .btn {
     padding: 0.6em 1.05em;
     font-size: 0.9rem;
+  }
+  .pdf-note {
+    margin: -6px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
   }
   .details {
     background: var(--surface);

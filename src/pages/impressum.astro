@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../site.config';
+
+const { name, email, street, city, country, vatId } = SITE.owner;
+---
+
+<BaseLayout title="Impressum" description={`Legal notice for ${SITE.name}.`}>
+  <section class="section">
+    <div class="wrap prose">
+      <p class="eyebrow">Legal notice</p>
+      <h1>Impressum</h1>
+
+      <h2>Information according to § 5 DDG</h2>
+      <p>
+        {name}<br />
+        {SITE.name}<br />
+        {street}<br />
+        {city}<br />
+        {country}
+      </p>
+
+      <h2>Contact</h2>
+      <p>Email: <a href={`mailto:${email}`}>{email}</a></p>
+
+      <h2>VAT ID</h2>
+      <p>VAT identification number according to § 27a UStG: {vatId}</p>
+
+      <h2>Responsible for the content according to § 18 Abs. 2 MStV</h2>
+      <p>{name}, {street}, {city}, {country}</p>
+    </div>
+  </section>
+</BaseLayout>
