@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
 
 const { name, email, street, city, country } = SITE.owner;
-const updated = '16 November 2026';
+const updated = '17 November 2026';
 ---
 
 <BaseLayout title="Privacy policy" description={`How ${SITE.name} handles your data.`}>
@@ -12,8 +12,8 @@ const updated = '16 November 2026';
       <p class="eyebrow">Datenschutzerklärung</p>
       <h1>Privacy policy</h1>
       <p class="lede">
-        Short version: this is a private hobby blog. It has no ads, no analytics and no tracking, and it doesn't
-        share your data with anyone. The details are below.
+        Short version: this is a private hobby blog. It has no analytics. Ads are shown through Google AdSense, and
+        personalized ads only with your consent. The details are below.
       </p>
 
       <h2>Controller</h2>
@@ -35,8 +35,9 @@ const updated = '16 November 2026';
         logs, and this information is not combined with any other data.
       </p>
       <p>
-        All fonts, images and scripts come from this website's own server. No content is loaded from other
-        companies, such as Google Fonts, unless you choose to play a video (see below).
+        Fonts, images and the site's own scripts come from this website's own server. The only content loaded from
+        another company by default is Google's advertising and consent script (see "Advertising (Google AdSense)"
+        below). YouTube videos only load if you choose to play one (see below).
       </p>
 
       <h2>Hosting</h2>
@@ -47,8 +48,9 @@ const updated = '16 November 2026';
 
       <h2>Cookies and tracking</h2>
       <p>
-        This site does not use analytics, advertising or tracking cookies. The only cookies are set by the comment
-        system when you add your name to write a comment (see below).
+        This site does not use analytics. Google AdSense uses cookies and similar technologies for advertising, as
+        described under "Advertising (Google AdSense)" below. The comment system also sets cookies when you add your
+        name to write a comment (see below).
       </p>
 
       <h2>Your crochet progress</h2>
@@ -87,6 +89,32 @@ const updated = '16 November 2026';
         <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">policies.google.com/privacy</a>.
       </p>
 
+      <h2>Advertising (Google AdSense)</h2>
+      <p>
+        This website shows ads through Google AdSense, a service of Google Ireland Limited, Gordon House, Barrow
+        Street, Dublin 4, Ireland ("Google"). AdSense uses cookies and similar technologies, your IP address and device
+        information to show ads, limit how often you see them, measure their performance and prevent fraud.
+        Personalized ads are only shown if you consent.
+      </p>
+      <p>
+        When you first visit, Google's consent message (a certified consent management platform based on the IAB
+        Transparency &amp; Consent Framework) asks for your choice. Legal basis: your consent, Art. 6(1)(a) GDPR and
+        § 25(1) TDDDG. You can change or withdraw your consent at any time via "Privacy settings" in the footer; this
+        does not affect processing done before.
+      </p>
+      <p>
+        Google may process data in the USA. Google LLC is certified under the EU-U.S. Data Privacy Framework (adequacy
+        decision, Art. 45 GDPR).
+      </p>
+      <p>
+        More information:
+        <a href="https://policies.google.com/privacy" rel="noopener" target="_blank">https://policies.google.com/privacy</a>
+        and
+        <a href="https://policies.google.com/technologies/partner-sites" rel="noopener" target="_blank"
+          >https://policies.google.com/technologies/partner-sites</a
+        >
+      </p>
+
       <h2>Links to other websites</h2>
       <p>
         Links to Instagram, Ravelry, Pinterest, Facebook, YouTube and my shops on Etsy, Amigurumi.com and LoveCrafts
@@ -100,6 +128,15 @@ const updated = '16 November 2026';
         provided by Fastmail Pty Ltd, Melbourne, Australia. Transfers to Australia and other countries outside the EU
         are protected by the EU Standard Contractual Clauses. I delete messages once they are no longer needed, unless
         I am required to keep them by law.
+      </p>
+
+      <h2>Contact form</h2>
+      <p>
+        If you use the <a href="/contact/">contact form</a>, I receive your name, email address and message. They are
+        sent from this website's server to my email inbox (Fastmail, see above) and are not stored on the website. I
+        use them only to answer you (Art. 6(1)(b) or (f) GDPR) and delete them once they are no longer needed, unless I
+        am required to keep them by law. To block repeated spam, the server keeps your IP address in memory for at
+        most one hour; it is not written to disk or logged.
       </p>
 
       <h2>Your rights</h2>

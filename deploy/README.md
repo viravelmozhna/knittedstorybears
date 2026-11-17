@@ -109,6 +109,24 @@ curl -u "admin:$PW" -X PUT "$API/admin/user/USER_ID?site=knittedstorybears&block
 
 The comments from Blogger are already saved in the site. They show under each pattern as "earlier comments from the old blog".
 
+## 4b. Start the contact form
+
+The form at `/contact/` posts to `/api/contact`, which Caddy forwards to a small mail handler (`deploy/contact/`). It emails each message to you through Fastmail's SMTP, with the sender's address as Reply-To. It stores and logs nothing.
+
+1. In Fastmail: **Settings → Privacy & Security → Manage app passwords → New app password**, with access to **SMTP**. Copy it.
+2. On the server, with Docker:
+
+   ```bash
+   mkdir -p /opt/contact
+   # from your computer:  scp deploy/contact/{Dockerfile,docker-compose.yml,package.json,package-lock.json,server.mjs,.env.example} you@your-server:/opt/contact/
+   cd /opt/contact
+   cp .env.example .env && chmod 600 .env   # then paste the app password into SMTP_PASS
+   docker compose up -d --build
+   ```
+
+3. Make sure `/etc/caddy/Caddyfile` has the `handle /api/contact` block from [`Caddyfile`](Caddyfile), then `sudo systemctl reload caddy`.
+4. Send yourself a test message from the form. If nothing arrives, temporarily comment out `logging: driver: none` in `docker-compose.yml`, run `docker compose up -d` and check `docker logs contact`.
+
 ## 5. Retire the Blogger blog
 
 Once the new site is live, go to Blogger → Settings:

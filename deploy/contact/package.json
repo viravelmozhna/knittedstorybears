@@ -1,0 +1,15 @@
+{
+  "name": "knittedstorybears-contact",
+  "private": true,
+  "type": "module",
+  "description": "Receives the contact form on knittedstorybears.com and emails it to Vira.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "nodemailer": "10.3.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

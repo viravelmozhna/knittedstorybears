@@ -30,6 +30,12 @@ const year = new Date().getFullYear();
         <a href="/about/">About</a>
         <a href="/privacy/">Privacy</a>
         <a href="/impressum/">Impressum</a>
+        <!-- Reopens Google's consent message (AdSense privacy & messaging). -->
+        <a
+          href="#"
+          onclick="window.googlefc=window.googlefc||{};googlefc.callbackQueue=googlefc.callbackQueue||[];googlefc.callbackQueue.push(googlefc.showRevocationMessage);return false;"
+          >Privacy settings</a
+        >
       </nav>
       {
         SITE.shops.length > 0 && (

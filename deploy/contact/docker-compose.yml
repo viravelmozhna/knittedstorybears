@@ -1,0 +1,31 @@
+# Contact form mail handler for the blog.
+# Start with:  docker compose up -d --build   (from this folder, on the server)
+# Caddy forwards POST https://www.knittedstorybears.com/api/contact to it.
+services:
+  contact:
+    build: .
+    image: contact-knittedstorybears
+    pull_policy: build
+    container_name: contact
+    restart: always
+
+    # Locked down the same way as Remark42: unprivileged user, no
+    # capabilities, read-only filesystem, small resource limits.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    init: true
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 50
+
+    # No logs: the privacy policy promises the form isn't recorded anywhere.
+    logging:
+      driver: none
+
+    env_file: .env
+    environment:
+      - PORT=8081
+    ports:
+      - "127.0.0.1:8081:8081"

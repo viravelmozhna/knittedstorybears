@@ -6,3 +6,4 @@ dist/
 blogger-export/
 deploy/remark42/.env
 deploy/remark42/var/
+deploy/contact/.env

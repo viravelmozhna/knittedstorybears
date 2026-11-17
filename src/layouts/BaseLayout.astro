@@ -41,6 +41,13 @@ const ogImage = image ? new URL(image, Astro.site).href : undefined;
     {ogImage && <meta property="og:image" content={ogImage} />}
     <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
 
+    <!-- Google AdSense (site verification and consent message; no ad units are placed) -->
+    <script
+      is:inline
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5751441964258405"
+      crossorigin="anonymous"></script>
+
     <slot name="head" />
   </head>
   <body>

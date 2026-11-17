@@ -1,0 +1,110 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { SITE } from '../../site.config';
+---
+
+<BaseLayout title="Contact" description={`Send a message to ${SITE.author} at ${SITE.name}.`}>
+  <section class="section">
+    <div class="wrap prose contact">
+      <p class="eyebrow">Contact</p>
+      <h1>Write to me</h1>
+      <p>Questions about a pattern, or anything else? Send me a message and I'll answer by email.</p>
+
+      <p class="alert" data-error hidden role="alert"></p>
+
+      <!-- Handled by deploy/contact on the server (Caddy forwards /api/contact). -->
+      <form method="post" action="/api/contact">
+        <label>
+          Your name
+          <input name="name" required maxlength="100" autocomplete="name" />
+        </label>
+        <label>
+          Your email
+          <input name="email" type="email" required maxlength="200" autocomplete="email" />
+        </label>
+        <label>
+          Message
+          <textarea name="message" required maxlength="5000" rows="7"></textarea>
+        </label>
+        <!-- Left empty by people; bots that fill it in are ignored. -->
+        <div class="hp" aria-hidden="true">
+          <label>Website <input name="website" tabindex="-1" autocomplete="off" /></label>
+        </div>
+        <p class="note">
+          I use your name, email and message only to answer you. See the <a href="/privacy/">privacy policy</a>.
+        </p>
+        <button class="btn" type="submit">Send message</button>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const messages: Record<string, string> = {
+    invalid: 'Please fill in your name, a valid email address and a message.',
+    limit: "You've sent several messages in a short time. Please try again later.",
+    send: "Sorry, your message couldn't be sent. Please try again later.",
+  };
+  const code = new URLSearchParams(location.search).get('error');
+  const box = document.querySelector<HTMLElement>('[data-error]');
+  if (code && box) {
+    box.textContent = messages[code] ?? messages.send;
+    box.hidden = false;
+  }
+</script>
+
+<style>
+  .contact {
+    max-width: 640px;
+  }
+  form {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  label {
+    display: grid;
+    gap: 6px;
+    font-weight: 700;
+  }
+  input,
+  textarea {
+    font: inherit;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.65em 0.8em;
+    width: 100%;
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea {
+    resize: vertical;
+  }
+  button {
+    justify-self: start;
+  }
+  .note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  .hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>
